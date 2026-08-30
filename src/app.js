@@ -43,21 +43,29 @@ app.use((err, req, res, next) => {
   let mensaje = 'Ocurrió un error al procesar la solicitud.';
   let detalle = err.message;
 
-  if (err.code === 'CLAUDE_NO_CONFIGURADO') {
-    mensaje = 'La integración con Claude no está configurada.';
-  } else if (err.code === 'CLAUDE_REFUSAL') {
-    mensaje = 'El modelo no pudo generar el informe con la información suministrada.';
-  } else if (err.status === 400 && /credit balance is too low/i.test(err.message || '')) {
+  const msg = String(err.message || '');
+  const status = err.status || (err.response && err.response.status);
+
+  if (err.code === 'IA_NO_CONFIGURADA' || err.code === 'CLAUDE_NO_CONFIGURADO') {
     mensaje =
-      'La cuenta de Anthropic no tiene saldo suficiente. Ingrese a console.anthropic.com → Plans & Billing y agregue créditos o un método de pago.';
+      'La integración con la IA no está configurada. Defina GEMINI_API_KEY (o ANTHROPIC_API_KEY) en el archivo .env.';
     detalle = null;
-  } else if (err.status === 401) {
-    mensaje = 'La clave de API de Claude es inválida o no está autorizada.';
-  } else if (err.status === 429) {
-    mensaje = 'Se alcanzó el límite de solicitudes a la API de Claude. Intente nuevamente en unos minutos.';
+  } else if (err.code === 'IA_BLOQUEADA' || err.code === 'CLAUDE_REFUSAL') {
+    mensaje = 'El modelo no pudo generar el informe con la información suministrada.';
+  } else if (/credit balance is too low/i.test(msg)) {
+    mensaje =
+      'La cuenta de Anthropic no tiene saldo suficiente. Ingrese a console.anthropic.com → Plans & Billing y agregue créditos.';
+    detalle = null;
+  } else if (/API key not valid|API_KEY_INVALID|invalid api key/i.test(msg) || status === 401 || status === 403) {
+    mensaje = 'La clave de API es inválida o no está autorizada. Verifique GEMINI_API_KEY en .env.';
+    detalle = null;
+  } else if (status === 429 || /quota|rate limit|RESOURCE_EXHAUSTED/i.test(msg)) {
+    mensaje =
+      'Se alcanzó el límite de solicitudes o la cuota del proveedor de IA. Intente nuevamente en unos minutos.';
+    detalle = null;
   }
 
-  res.status(err.status || 500).render('error', {
+  res.status(status || 500).render('error', {
     titulo: 'Error',
     mensaje,
     detalle,

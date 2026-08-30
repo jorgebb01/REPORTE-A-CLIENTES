@@ -1,7 +1,7 @@
 /**
  * CONTROLADOR
  * Orquesta el flujo: recibe datos de la vista -> usa el Modelo para validar y
- * construir el mensaje -> llama al Servicio de Claude -> devuelve la vista con
+ * construir el mensaje -> llama al Servicio de IA -> devuelve la vista con
  * las preguntas del modelo o con el informe final. También genera el .docx.
  */
 
@@ -9,7 +9,7 @@
 
 const config = require('../config');
 const { InformeTecnico, CAMPOS_POR_GRUPO } = require('../models/InformeTecnico');
-const claudeService = require('../services/claudeService');
+const iaService = require('../services/aiService');
 const { generarDocx } = require('../services/wordService');
 
 function datosIniciales(session) {
@@ -31,7 +31,7 @@ function mostrarFormulario(req, res) {
     camposPorGrupo: CAMPOS_POR_GRUPO,
     datos: datosIniciales(req.session),
     errores: [],
-    claudeConfigurado: config.claude.configurado,
+    iaConfigurada: config.ai.configurada,
   });
 }
 
@@ -48,7 +48,7 @@ async function crearInforme(req, res, next) {
       camposPorGrupo: CAMPOS_POR_GRUPO,
       datos: informe.toObject(),
       errores,
-      claudeConfigurado: config.claude.configurado,
+      iaConfigurada: config.ai.configurada,
     });
   }
 
@@ -57,7 +57,7 @@ async function crearInforme(req, res, next) {
   ];
 
   try {
-    const { texto } = await claudeService.generarRespuesta(conversacion);
+    const { texto } = await iaService.generarRespuesta(conversacion);
     conversacion.push({ role: 'assistant', content: texto });
     req.session.conversacion = conversacion;
     return renderResultado(req, res, texto);
@@ -89,7 +89,7 @@ async function responderConsulta(req, res, next) {
   });
 
   try {
-    const { texto } = await claudeService.generarRespuesta(conversacion);
+    const { texto } = await iaService.generarRespuesta(conversacion);
     conversacion.push({ role: 'assistant', content: texto });
     req.session.conversacion = conversacion;
     return renderResultado(req, res, texto);
@@ -112,7 +112,7 @@ async function descargarWord(req, res, next) {
 
   if (!ultimo) return res.redirect('/');
 
-  const interpretado = claudeService.interpretarRespuesta(ultimo.content);
+  const interpretado = iaService.interpretarRespuesta(ultimo.content);
   if (interpretado.tipo !== 'informe') {
     return res.redirect('/informe/resultado');
   }
@@ -146,7 +146,7 @@ function mostrarResultado(req, res) {
 
 /** Helper interno para renderizar la vista de resultado. */
 function renderResultado(req, res, textoRespuesta, extra = {}) {
-  const interpretado = claudeService.interpretarRespuesta(textoRespuesta);
+  const interpretado = iaService.interpretarRespuesta(textoRespuesta);
   return res.render('resultado', {
     titulo: interpretado.tipo === 'informe' ? 'Informe técnico generado' : 'Información pendiente',
     tipo: interpretado.tipo,

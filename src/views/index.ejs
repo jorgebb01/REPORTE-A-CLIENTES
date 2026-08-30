@@ -2,15 +2,15 @@
 
 <h1>Nuevo informe técnico</h1>
 <p class="lead">
-  Complete los datos de la atención del vehículo. La información se enviará a Claude,
+  Complete los datos de la atención del vehículo. La información se enviará a la IA (Gemini),
   que redactará un informe técnico formal con el formato corporativo único. Si falta
   algún dato necesario, el sistema le devolverá preguntas concretas antes de redactar.
 </p>
 
-<% if (!claudeConfigurado) { %>
+<% if (!iaConfigurada) { %>
   <div class="alert alert-warn">
-    <strong>Claude no está configurado.</strong> Copie <code>.env.example</code> a <code>.env</code>
-    y defina <code>ANTHROPIC_API_KEY</code> para poder generar informes.
+    <strong>La IA no está configurada.</strong> Copie <code>.env.example</code> a <code>.env</code>
+    y defina <code>GEMINI_API_KEY</code> para poder generar informes.
   </div>
 <% } %>
 
@@ -52,7 +52,7 @@
   <% }) %>
 
   <div class="acciones">
-    <button type="submit" class="btn btn-primary" <%= claudeConfigurado ? '' : 'disabled' %>>
+    <button type="submit" class="btn btn-primary" <%= iaConfigurada ? '' : 'disabled' %>>
       Generar informe
     </button>
     <button type="reset" class="btn btn-ghost">Limpiar</button>
