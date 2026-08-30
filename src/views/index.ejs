@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+
+<h1>Nuevo informe técnico</h1>
+<p class="lead">
+  Complete los datos de la atención del vehículo. La información se enviará a Claude,
+  que redactará un informe técnico formal con el formato corporativo único. Si falta
+  algún dato necesario, el sistema le devolverá preguntas concretas antes de redactar.
+</p>
+
+<% if (!claudeConfigurado) { %>
+  <div class="alert alert-warn">
+    <strong>Claude no está configurado.</strong> Copie <code>.env.example</code> a <code>.env</code>
+    y defina <code>ANTHROPIC_API_KEY</code> para poder generar informes.
+  </div>
+<% } %>
+
+<% if (errores && errores.length) { %>
+  <div class="alert alert-error">
+    <strong>Revise los siguientes campos:</strong>
+    <ul>
+      <% errores.forEach(function (e) { %><li><%= e.mensaje %></li><% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<form method="POST" action="/informe" class="form" novalidate>
+  <% Object.keys(camposPorGrupo).forEach(function (grupo) { %>
+    <fieldset class="grupo">
+      <legend><%= grupo %></legend>
+      <% camposPorGrupo[grupo].forEach(function (campo) { %>
+        <div class="campo <%= campo.type === 'textarea' ? 'campo-full' : '' %>">
+          <label for="<%= campo.key %>">
+            <%= campo.label %>
+            <% if (campo.required) { %><span class="req" title="Obligatorio">*</span><% } %>
+          </label>
+          <% if (campo.type === 'textarea') { %>
+            <textarea id="<%= campo.key %>" name="<%= campo.key %>" rows="4"
+              <%= campo.required ? 'required' : '' %>><%= datos[campo.key] || '' %></textarea>
+          <% } else { %>
+            <input
+              type="<%= campo.type === 'date' ? 'date' : 'text' %>"
+              id="<%= campo.key %>"
+              name="<%= campo.key %>"
+              value="<%= datos[campo.key] || '' %>"
+              <%= campo.required ? 'required' : '' %>
+            />
+          <% } %>
+          <% if (campo.help) { %><small class="help"><%= campo.help %></small><% } %>
+        </div>
+      <% }) %>
+    </fieldset>
+  <% }) %>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn-primary" <%= claudeConfigurado ? '' : 'disabled' %>>
+      Generar informe
+    </button>
+    <button type="reset" class="btn btn-ghost">Limpiar</button>
+  </div>
+  <p class="nota-campos"><span class="req">*</span> Campo obligatorio.</p>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+
+<h1><%= titulo %></h1>
+<div class="alert alert-error">
+  <p><%= mensaje %></p>
+  <% if (detalle) { %><p class="detalle"><small><%= detalle %></small></p><% } %>
+</div>
+<div class="acciones">
+  <a href="/" class="btn btn-primary">Volver al inicio</a>
+</div>
+
+<%- include('partials/footer') %>

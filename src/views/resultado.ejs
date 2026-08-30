@@ -1,0 +1,89 @@
+<%- include('partials/header') %>
+
+<% if (aviso) { %>
+  <div class="alert alert-warn"><%= aviso %></div>
+<% } %>
+
+<% if (tipo === 'consulta') { %>
+  <h1>Información pendiente</h1>
+  <p class="lead">
+    Antes de redactar el informe, se requiere la siguiente información. Responda de forma
+    concreta y vuelva a enviar; puede responder en varios turnos si es necesario.
+  </p>
+
+  <div class="panel panel-consulta">
+    <pre class="doc-texto"><%= contenido %></pre>
+  </div>
+
+  <form method="POST" action="/informe/responder" class="form">
+    <div class="campo campo-full">
+      <label for="respuesta">Su respuesta</label>
+      <textarea id="respuesta" name="respuesta" rows="8"
+        placeholder="Responda punto por punto siguiendo la numeración anterior..." required></textarea>
+    </div>
+    <div class="acciones">
+      <button type="submit" class="btn btn-primary">Enviar respuesta</button>
+      <a href="/" class="btn btn-ghost">Editar datos originales</a>
+    </div>
+  </form>
+
+<% } else if (tipo === 'informe') { %>
+  <h1>Informe técnico generado</h1>
+  <p class="lead">
+    Revise el contenido con cuidado antes de entregarlo. Puede descargarlo en Word,
+    copiarlo, o solicitar ajustes indicando los cambios requeridos.
+  </p>
+
+  <div class="acciones acciones-top">
+    <form method="POST" action="/informe/word" class="inline">
+      <button type="submit" class="btn btn-primary">Descargar en Word (.docx)</button>
+    </form>
+    <button type="button" class="btn btn-secondary" id="btn-copiar">Copiar texto</button>
+    <form method="POST" action="/informe/nuevo" class="inline">
+      <button type="submit" class="btn btn-ghost">Nuevo informe</button>
+    </form>
+  </div>
+
+  <div class="panel panel-informe">
+    <pre class="doc-texto" id="doc-texto"><%= contenido %></pre>
+  </div>
+
+  <form method="POST" action="/informe/responder" class="form">
+    <div class="campo campo-full">
+      <label for="respuesta">Solicitar ajustes (opcional)</label>
+      <textarea id="respuesta" name="respuesta" rows="5"
+        placeholder="Ej.: Corregir el kilometraje a 82.500 km. Añadir que el cliente autorizó el trabajo el 12/08."></textarea>
+    </div>
+    <div class="acciones">
+      <button type="submit" class="btn btn-secondary">Aplicar ajustes</button>
+    </div>
+  </form>
+
+<% } else { %>
+  <h1>Respuesta del modelo</h1>
+  <div class="alert alert-warn">
+    La respuesta no siguió el formato esperado. Se muestra tal cual fue recibida.
+  </div>
+  <div class="panel">
+    <pre class="doc-texto"><%= contenido %></pre>
+  </div>
+  <div class="acciones">
+    <a href="/" class="btn btn-ghost">Volver al formulario</a>
+  </div>
+<% } %>
+
+<script>
+  var btn = document.getElementById('btn-copiar');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var txt = document.getElementById('doc-texto').innerText;
+      navigator.clipboard.writeText(txt).then(function () {
+        var original = btn.textContent;
+        btn.textContent = 'Copiado ✓';
+        setTimeout(function () { btn.textContent = original; }, 1800);
+      });
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>
