@@ -47,6 +47,10 @@ app.use((err, req, res, next) => {
     mensaje = 'La integración con Claude no está configurada.';
   } else if (err.code === 'CLAUDE_REFUSAL') {
     mensaje = 'El modelo no pudo generar el informe con la información suministrada.';
+  } else if (err.status === 400 && /credit balance is too low/i.test(err.message || '')) {
+    mensaje =
+      'La cuenta de Anthropic no tiene saldo suficiente. Ingrese a console.anthropic.com → Plans & Billing y agregue créditos o un método de pago.';
+    detalle = null;
   } else if (err.status === 401) {
     mensaje = 'La clave de API de Claude es inválida o no está autorizada.';
   } else if (err.status === 429) {
