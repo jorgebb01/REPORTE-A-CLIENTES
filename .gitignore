@@ -3,3 +3,7 @@ node_modules/
 *.log
 .DS_Store
 /tmp-informes/
+/dist/
+
+# Configuración incrustada con la clave real (usar embedded.example.js como plantilla)
+src/config/embedded.js

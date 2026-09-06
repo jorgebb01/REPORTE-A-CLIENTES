@@ -3,10 +3,23 @@
   "version": "1.0.0",
   "description": "Aplicación MVC para generar informes técnicos automotrices formales, profesionales y legalmente preventivos para clientes de una concesionaria, redactados por Claude con un formato único y repetible.",
   "main": "server.js",
+  "bin": "entry.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "build:exe": "pkg . --targets node22-win-x64 --output dist/InformesTecnicos.exe --compress GZip --fallback-to-source"
+  },
+  "pkg": {
+    "assets": [
+      "src/views/**/*",
+      "src/public/**/*",
+      "node_modules/ejs/**/*"
+    ],
+    "scripts": [
+      "src/**/*.js"
+    ],
+    "outputPath": "dist"
   },
   "keywords": [
     "informe-tecnico",
@@ -26,5 +39,8 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.22.0"
   }
 }

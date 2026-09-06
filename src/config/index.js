@@ -2,6 +2,25 @@
 
 require('dotenv').config({ quiet: true });
 
+// Valores incrustados en el ejecutable. Solo se aplican cuando la variable de
+// entorno (o el .env) no define la clave, de modo que un .env externo siempre
+// puede sobreescribirlos.
+//
+// `embedded.js` NO está versionado (contiene la clave real que se compila en el
+// .exe). Si no existe, se usa `embedded.example.js` con placeholders y la
+// aplicación funciona con lo que haya en `.env`.
+let embedded;
+try {
+  embedded = require('./embedded');
+} catch (_) {
+  embedded = require('./embedded.example');
+}
+for (const [clave, valor] of Object.entries(embedded)) {
+  if (process.env[clave] === undefined || process.env[clave] === '') {
+    if (valor !== '') process.env[clave] = valor;
+  }
+}
+
 // Proveedor de IA a utilizar: 'gemini' (por defecto) o 'claude'.
 const provider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
 

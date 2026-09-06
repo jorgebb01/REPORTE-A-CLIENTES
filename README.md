@@ -108,6 +108,34 @@ Abra <http://localhost:3000>. En Windows también puede usar `start.cmd`.
 
 ---
 
+## Ejecutable portátil (.exe para Windows)
+
+Genera un único archivo que corre en cualquier PC con Windows 64-bit sin instalar
+Node.js. La clave de Gemini queda incrustada dentro del binario; un `.env` junto
+al `.exe` sigue teniendo prioridad.
+
+```
+npm install
+cp src/config/embedded.example.js src/config/embedded.js   # y coloca tu clave real
+npm run build:exe
+```
+
+`src/config/embedded.js` está en `.gitignore`: la clave solo queda compilada
+dentro del `.exe`, nunca en el repositorio. Sin ese archivo la app usa
+`embedded.example.js` (placeholders) y toma la configuración de `.env`.
+
+Salida: `dist/InformesTecnicos.exe` (+ `dist/LEEME.txt` con instrucciones para el
+usuario final). Al ejecutarlo abre el servidor en `http://localhost:3000` y lanza
+el navegador; se cierra al cerrar la ventana de consola.
+
+Otros sistemas: cambia el `--targets` del script `build:exe` (p. ej.
+`node22-macos-x64`, `node22-linux-x64`).
+
+> ⚠️ Cualquiera con el `.exe` puede extraer la clave incrustada. No publiques el
+> binario ni lo subas a repos públicos.
+
+---
+
 ## Uso de la skill en Claude Code
 
 Con este repositorio abierto en Claude Code:
